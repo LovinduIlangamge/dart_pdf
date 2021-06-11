@@ -25,7 +25,6 @@ import 'container.dart';
 import 'decoration.dart';
 import 'flex.dart';
 import 'geometry.dart';
-import 'multi_page.dart';
 import 'text.dart';
 import 'text_style.dart';
 import 'theme.dart';
@@ -42,10 +41,13 @@ class Header extends StatelessWidget {
     this.textStyle,
     String? title,
     this.outlineColor,
+    this.borderSide,
     this.outlineStyle = PdfOutlineStyle.normal,
   })  : assert(level >= 0 && level <= 5),
         assert(child != null || text != null),
         title = title ?? text;
+
+  final String? borderSide;
 
   final String? title;
 
@@ -75,37 +77,37 @@ class Header extends StatelessWidget {
     var _textStyle = textStyle;
     switch (level) {
       case 0:
-        _margin ??= const EdgeInsets.only(bottom: 5.0 * PdfPageFormat.mm);
-        _padding ??= const EdgeInsets.only(bottom: 1.0 * PdfPageFormat.mm);
+        _margin ??= const EdgeInsets.only(borderSide:0 * PdfPageFormat.mm);
+        _padding ??= const EdgeInsets.only(borderSide: 0 * PdfPageFormat.mm);
         _decoration ??=
-            const BoxDecoration(border: Border(bottom: BorderSide()));
+            const BoxDecoration(border: Border(borderSide: BorderSide()));
         _textStyle ??= Theme.of(context).header0;
         break;
       case 1:
         _margin ??= const EdgeInsets.only(
-            top: 3.0 * PdfPageFormat.mm, bottom: 5.0 * PdfPageFormat.mm);
+            top: 3.0 * PdfPageFormat.mm, borderSide: 5.0 * PdfPageFormat.mm);
         _decoration ??=
-            const BoxDecoration(border: Border(bottom: BorderSide(width: 0.2)));
+            const BoxDecoration(border: Border(borderSide: BorderSide(width: 0.2)));
         _textStyle ??= Theme.of(context).header1;
         break;
       case 2:
         _margin ??= const EdgeInsets.only(
-            top: 2.0 * PdfPageFormat.mm, bottom: 4.0 * PdfPageFormat.mm);
+            top: 2.0 * PdfPageFormat.mm, borderSide: 4.0 * PdfPageFormat.mm);
         _textStyle ??= Theme.of(context).header2;
         break;
       case 3:
         _margin ??= const EdgeInsets.only(
-            top: 2.0 * PdfPageFormat.mm, bottom: 4.0 * PdfPageFormat.mm);
+            top: 2.0 * PdfPageFormat.mm, borderSide: 4.0 * PdfPageFormat.mm);
         _textStyle ??= Theme.of(context).header3;
         break;
       case 4:
         _margin ??= const EdgeInsets.only(
-            top: 2.0 * PdfPageFormat.mm, bottom: 4.0 * PdfPageFormat.mm);
+            top: 2.0 * PdfPageFormat.mm, borderSide: 4.0 * PdfPageFormat.mm);
         _textStyle ??= Theme.of(context).header4;
         break;
       case 5:
         _margin ??= const EdgeInsets.only(
-            top: 2.0 * PdfPageFormat.mm, bottom: 4.0 * PdfPageFormat.mm);
+            top: 2.0 * PdfPageFormat.mm, borderSide: 4.0 * PdfPageFormat.mm);
         _textStyle ??= Theme.of(context).header5;
         break;
     }
@@ -129,49 +131,6 @@ class Header extends StatelessWidget {
       level: level,
       color: outlineColor,
       style: outlineStyle,
-    );
-  }
-}
-
-class TableOfContent extends StatelessWidget {
-  Iterable<Widget> _buildToc(PdfOutline o, int l) sync* {
-    for (final c in o.outlines) {
-      if (c.title != null) {
-        yield Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: Link(
-            destination: c.anchor!,
-            child: Row(
-              children: [
-                SizedBox(width: 10.0 * l),
-                Text('${c.title}'),
-                SizedBox(width: 8),
-                Expanded(
-                    child: Divider(
-                  borderStyle: BorderStyle.dotted,
-                  thickness: 0.2,
-                )),
-                SizedBox(width: 8),
-                Text('${c.page}'),
-              ],
-            ),
-          ),
-        );
-        yield* _buildToc(c, l + 1);
-      }
-    }
-  }
-
-  @override
-  Widget build(Context context) {
-    assert(context.page is! MultiPage,
-        '$runtimeType will not work with MultiPage');
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ..._buildToc(context.document.outline, 0),
-      ],
     );
   }
 }
